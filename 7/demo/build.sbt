@@ -4,6 +4,10 @@ lazy val scala211 = "2.11.12"
 
 lazy val supportedScalaVersions = Seq(scala211, scala212)
 
+lazy val releaseNotes = taskKey[String]("Release notes go here")
+
+lazy val generateReleaseNotes = taskKey[Unit]("Save release notes to file")
+
 lazy val commonSettings = Seq(
   libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.1" % "test",
   version := "0.1",
@@ -20,6 +24,7 @@ lazy val root = project.in(file("."))
   .aggregate(library, app)
   .settings(commonSettings)
   .settings(
+    publish := {},
     printProjectGraph / aggregate := false
   )
 
@@ -35,6 +40,7 @@ lazy val root = project.in(file("."))
 lazy val library = project.in(file("library"))
   .settings(commonSettings)
   .settings(
+    publishTo := Some(Resolver.bintrayRepo("org.spbsu", "mylib")),
     crossScalaVersions := supportedScalaVersions
   )
 
@@ -51,5 +57,11 @@ lazy val app = project.in(file("app"))
   .dependsOn(library)
   .settings(commonSettings)
   .settings(
-    Compile / run / mainClass := Some("org.spbsu.Main")
+    Compile / run / mainClass := Some ("org.spbsu.Main"),
+    releaseNotes := "This is a release",
+    generateReleaseNotes := {
+      println("Generate release notes")
+      val data = releaseNotes.value
+    },
+    publish := {}
   )
